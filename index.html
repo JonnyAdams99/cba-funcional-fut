@@ -1,0 +1,842 @@
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#100d15">
+<title>CBA Funcional FUT | Painel Administrativo</title>
+
+<style>
+:root {
+  --bg:#100d15;
+  --panel:#19151f;
+  --purple:#7629a8;
+  --pink:#d94bff;
+  --line:#3a2d45;
+  --text:#f8f4fc;
+  --muted:#b6a9c2;
+  --green:#54d69a;
+  --red:#ff777e;
+}
+*{box-sizing:border-box}
+body{
+  margin:0;background:var(--bg);color:var(--text);
+  font-family:Arial,Helvetica,sans-serif;font-size:14px
+}
+button,input,select{font:inherit}
+button{cursor:pointer}
+.header{
+  padding:22px 24px;
+  background:linear-gradient(120deg,#17111e,#281435);
+  border-bottom:1px solid var(--line)
+}
+.brand{display:flex;align-items:center;gap:16px}
+.logo{
+  width:76px;height:76px;object-fit:contain;
+  background:#08070a;border:1px solid var(--line);
+  border-radius:12px
+}
+.brand h1{font-size:clamp(19px,3vw,27px);margin:0 0 7px;letter-spacing:1px}
+.brand p{margin:0;color:var(--muted);font-size:12px}
+.private{
+  display:inline-block;margin-top:10px;padding:5px 9px;
+  border:1px solid #8151a0;border-radius:4px;
+  color:#e7b9ff;font-size:10px;font-weight:bold;letter-spacing:1px
+}
+.container{max-width:1800px;margin:auto;padding:20px}
+.toolbar{
+  display:flex;flex-wrap:wrap;align-items:center;
+  gap:9px;margin-bottom:18px
+}
+.tab,.btn{
+  border:1px solid var(--line);border-radius:6px;
+  padding:10px 14px;background:#211a2a;color:var(--text)
+}
+.tab.active,.btn.primary{background:var(--purple);border-color:var(--pink)}
+.btn:hover,.tab:hover{filter:brightness(1.2)}
+.btn.danger{color:#ffadb1;border-color:#7a353c}
+.btn.small{padding:5px 8px;font-size:11px}
+.status{color:var(--muted);font-size:12px;margin-left:auto}
+h2{font-size:18px;margin:0 0 8px}
+.subtitle{color:var(--muted);margin:0 0 18px;font-size:12px}
+.metrics{
+  display:grid;grid-template-columns:repeat(4,minmax(150px,1fr));
+  gap:12px;margin-bottom:18px
+}
+.metric{
+  background:var(--panel);border:1px solid var(--line);
+  padding:15px;border-radius:7px
+}
+.metric span{
+  display:block;color:var(--muted);font-size:11px;
+  text-transform:uppercase;margin-bottom:10px
+}
+.metric strong{font-size:clamp(17px,2vw,24px);overflow-wrap:anywhere}
+.purple{color:#e1a4ff}
+.green{color:var(--green)}
+.yellow{color:#f6d77b}
+.red{color:var(--red)}
+.sheet{
+  background:var(--panel);border:1px solid var(--line);
+  border-radius:7px;overflow:hidden;margin-bottom:20px
+}
+.sheet-title{padding:16px;background:#24182e;border-bottom:1px solid var(--line)}
+.sheet-title h2{letter-spacing:.5px}
+.sheet-title p{color:var(--muted);font-size:12px;margin:7px 0 0}
+.table-wrap{width:100%;overflow:auto;max-height:70vh}
+table{border-collapse:separate;border-spacing:0;width:100%;font-size:12px;white-space:nowrap}
+th,td{
+  padding:9px 10px;border-right:1px solid var(--line);
+  border-bottom:1px solid var(--line);text-align:center
+}
+th{
+  background:#30213b;color:#f2e5ff;font-size:11px;
+  position:sticky;top:0;z-index:2
+}
+th:first-child,td:first-child{
+  position:sticky;left:0;z-index:1;background:#211a29
+}
+th:first-child{z-index:3;background:#30213b}
+td.name,th.name{text-align:left;min-width:200px}
+td.money{min-width:140px}
+tfoot td{background:#30213b;font-weight:bold}
+tfoot tr td:first-child{background:#30213b}
+.cell-input{
+  width:100%;min-width:68px;background:transparent;
+  border:1px solid transparent;border-radius:3px;
+  color:var(--text);padding:6px 4px;text-align:center;outline:none
+}
+.cell-input.name-input{text-align:left;min-width:180px}
+.editing .cell-input{border-color:#715182;background:#17111e}
+.cell-input:focus{border-color:var(--pink);background:#24152f}
+.money-cell{color:#d7c8e3}
+.money-cell.paid{color:var(--green)}
+.money-cell.pending{color:#f6d77b}
+.row-actions{min-width:78px}
+.summary-table td:first-child{text-align:left}
+.summary-table th{text-align:center}
+.summary-table td{min-width:115px}
+.summary-table td:first-child{min-width:145px}
+.note{padding:14px;color:var(--muted);font-size:12px;line-height:1.6}
+.footer{color:var(--muted);text-align:center;font-size:11px;padding:24px}
+.hidden{display:none!important}
+.section{display:none}
+.section.active{display:block}
+@media(max-width:760px){
+  .header{padding:16px}
+  .container{padding:12px}
+  .logo{width:59px;height:59px}
+  .brand{gap:11px}
+  .brand p{line-height:1.5}
+  .metrics{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .metric{padding:12px}
+  .toolbar{gap:7px}
+  .tab,.btn{padding:9px 10px;font-size:12px}
+  .status{width:100%;margin-left:0}
+  th,td{padding:8px}
+}
+</style>
+</head>
+
+<body>
+
+<header class="header">
+  <div class="brand">
+    <img class="logo" src="logo-cba.jpeg" alt="Logo CBA Funcional FUT"
+         onerror="this.style.display='none'">
+    <div>
+      <h1>CBA FUNCIONAL FUT</h1>
+      <p>CONTROLE DE MENSALIDADES E GESTÃO FINANCEIRA</p>
+      <span class="private">◆ PAINEL ADMINISTRATIVO PRIVADO</span>
+    </div>
+  </div>
+</header>
+
+<main class="container">
+
+  <nav class="toolbar">
+    <button class="tab active" data-tab="controle">Controle mensal</button>
+    <button class="tab" data-tab="resumo">Resumo de recebimentos</button>
+    <button class="tab" data-tab="financeiro">Saldo financeiro</button>
+
+    <button class="btn primary" id="editBtn">✎ EDITAR: DESATIVADO</button>
+    <button class="btn hidden" id="addBtn">＋ Adicionar aluno</button>
+    <button class="btn" id="exportBtn">Exportar CSV</button>
+    <button class="btn" id="backupBtn">Backup</button>
+    <button class="btn" id="restoreBtn">Restaurar backup</button>
+    <input id="restoreFile" type="file" accept=".json,application/json">
+
+    <span class="status" id="saveStatus">Dados salvos neste navegador</span>
+  </nav>
+
+  <!-- CONTROLE MENSAL -->
+
+  <section id="controle" class="section active">
+
+    <div class="metrics">
+      <div class="metric">
+        <span>Alunos cadastrados</span>
+        <strong id="studentCount">0</strong>
+      </div>
+      <div class="metric">
+        <span>Total recebido no mês</span>
+        <strong class="green" id="monthReceived">R$ 0,00</strong>
+      </div>
+      <div class="metric">
+        <span>30% — aluguel</span>
+        <strong class="purple" id="monthRent">R$ 0,00</strong>
+      </div>
+      <div class="metric">
+        <span>70% — saldo restante</span>
+        <strong class="green" id="monthBalance">R$ 0,00</strong>
+      </div>
+    </div>
+
+    <div class="sheet">
+      <div class="sheet-title">
+        <h2>CONTROLE DE MENSALIDADES | ALUNOS</h2>
+        <p>Preencha o nome dos alunos. Em cada mês, digite o valor recebido ou escolha PENDENTE no menu.</p>
+        <p>Os totais são calculados automaticamente.</p>
+
+        <div style="margin-top:12px;display:flex;align-items:center;gap:9px;flex-wrap:wrap">
+          <label for="selectedMonth">Mês em destaque:</label>
+          <select id="selectedMonth" class="btn"></select>
+        </div>
+      </div>
+
+      <div class="table-wrap" id="mainTableWrap">
+        <table id="mainTable"></table>
+      </div>
+
+      <div class="note">
+        Dica: use o valor recebido para pagamentos confirmados; use PENDENTE para quem ainda não pagou. Células vazias não entram na soma.
+        <br>Para alterar nomes ou valores, clique em EDITAR. Os totais são recalculados automaticamente.
+      </div>
+    </div>
+  </section>
+
+  <!-- RESUMO DE RECEBIMENTOS -->
+
+  <section id="resumo" class="section">
+
+    <div class="metrics">
+      <div class="metric">
+        <span>Total recebido no período</span>
+        <strong class="green" id="sumReceived">R$ 0,00</strong>
+      </div>
+      <div class="metric">
+        <span>Total destinado ao aluguel (30%)</span>
+        <strong class="purple" id="sumRent">R$ 0,00</strong>
+      </div>
+      <div class="metric">
+        <span>Total restante (70%)</span>
+        <strong class="green" id="sumBalance">R$ 0,00</strong>
+      </div>
+      <div class="metric">
+        <span>Pendências registradas</span>
+        <strong class="yellow" id="sumPending">0</strong>
+      </div>
+    </div>
+
+    <div class="sheet">
+      <div class="sheet-title">
+        <h2>RESUMO DE RECEBIMENTOS</h2>
+        <p>Valores calculados automaticamente com base nos lançamentos do controle mensal.</p>
+      </div>
+      <div class="table-wrap">
+        <table id="summaryTable" class="summary-table"></table>
+      </div>
+      <div class="note">
+        Os pagamentos pendentes não entram no total recebido nem no cálculo do aluguel.
+      </div>
+    </div>
+  </section>
+
+  <!-- SALDO FINANCEIRO -->
+
+  <section id="financeiro" class="section">
+
+    <div class="metrics">
+      <div class="metric">
+        <span>Recebimento acumulado</span>
+        <strong class="green" id="accReceived">R$ 0,00</strong>
+      </div>
+      <div class="metric">
+        <span>Aluguel acumulado (30%)</span>
+        <strong class="purple" id="accRent">R$ 0,00</strong>
+      </div>
+      <div class="metric">
+        <span>Saldo acumulado (70%)</span>
+        <strong class="green" id="accBalance">R$ 0,00</strong>
+      </div>
+      <div class="metric">
+        <span>Total de pendências</span>
+        <strong class="yellow" id="accPending">R$ 0,00</strong>
+      </div>
+    </div>
+
+    <div class="sheet">
+      <div class="sheet-title">
+        <h2>SALDO FINANCEIRO</h2>
+        <p>Resumo mensal, valor recebido, aluguel, saldo restante e recebimento acumulado.</p>
+      </div>
+      <div class="table-wrap">
+        <table id="financeTable" class="summary-table"></table>
+      </div>
+      <div class="note">
+        Saldo acumulado representa o total bruto recebido ao longo dos meses. O aluguel corresponde a 30% dos recebimentos confirmados; o restante corresponde a 70%. Não são descontadas outras despesas.
+      </div>
+    </div>
+  </section>
+
+  <div class="footer">
+    CBA FUNCIONAL FUT · CONTROLE ADMINISTRATIVO DE MENSALIDADES
+    <br>Mantenha cópias de segurança atualizadas.
+  </div>
+
+</main>
+
+<script>
+"use strict";
+
+const MONTHS = [
+ ["2026-10","Outubro/2026","OUT/26"],
+ ["2026-11","Novembro/2026","NOV/26"],
+ ["2026-12","Dezembro/2026","DEZ/26"],
+ ["2027-01","Janeiro/2027","JAN/27"],
+ ["2027-02","Fevereiro/2027","FEV/27"],
+ ["2027-03","Março/2027","MAR/27"],
+ ["2027-04","Abril/2027","ABR/27"],
+ ["2027-05","Maio/2027","MAI/27"],
+ ["2027-06","Junho/2027","JUN/27"],
+ ["2027-07","Julho/2027","JUL/27"],
+ ["2027-08","Agosto/2027","AGO/27"],
+ ["2027-09","Setembro/2027","SET/27"],
+ ["2027-10","Outubro/2027","OUT/27"],
+ ["2027-11","Novembro/2027","NOV/27"],
+ ["2027-12","Dezembro/2027","DEZ/27"]
+];
+
+const STORAGE_KEY = "cba_funcional_fut_planilha_v1";
+
+let editing = false;
+let students = [];
+let selectedMonth = "2026-10";
+
+function makeId(){
+  return Date.now().toString(36)+Math.random().toString(36).slice(2,8);
+}
+
+function blankStudent(name=""){
+  const payments={};
+  MONTHS.forEach(m=>payments[m[0]]="");
+  return {id:makeId(),name,payments};
+}
+
+function money(value){
+  return new Intl.NumberFormat("pt-BR",{
+    style:"currency",currency:"BRL"
+  }).format(Number(value)||0);
+}
+
+function parseMoney(value){
+  if(typeof value==="number") return Number.isFinite(value)?value:0;
+
+  let s=String(value??"").trim().replace(/\s/g,"");
+
+  if(!s || s.toUpperCase()==="PENDENTE") return 0;
+
+  s=s.replace(/^R\$/i,"");
+
+  if(s.includes(",")){
+    s=s.replace(/\./g,"").replace(",",".");
+  }
+
+  const n=Number(s);
+  return Number.isFinite(n)&&n>0?n:0;
+}
+
+function isPending(value){
+  return String(value??"").trim().toUpperCase()==="PENDENTE";
+}
+
+function safeText(value){
+  return String(value??"").replace(/[&<>"']/g,c=>({
+    "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
+  }[c]));
+}
+
+function loadData(){
+  try{
+    const saved=JSON.parse(localStorage.getItem(STORAGE_KEY)||"null");
+
+    if(saved && Array.isArray(saved.students)){
+      students=saved.students.map(s=>({
+        id:s.id||makeId(),
+        name:String(s.name||""),
+        payments:Object.fromEntries(MONTHS.map(m=>[
+          m[0],s.payments?.[m[0]]??""
+        ]))
+      }));
+
+      selectedMonth=MONTHS.some(m=>m[0]===saved.selectedMonth)
+        ?saved.selectedMonth:MONTHS[0][0];
+
+      return;
+    }
+  }catch(e){}
+
+  students=Array.from({length:50},()=>blankStudent(""));
+}
+
+function saveData(){
+  try{
+    localStorage.setItem(STORAGE_KEY,JSON.stringify({
+      students,selectedMonth
+    }));
+
+    document.getElementById("saveStatus").textContent=
+      "Salvo automaticamente";
+  }catch(e){
+    document.getElementById("saveStatus").textContent=
+      "Não foi possível salvar";
+  }
+}
+
+function monthTotals(month){
+  let received=0,pendingCount=0,paidCount=0;
+
+  students.forEach(s=>{
+    const v=s.payments[month];
+
+    if(isPending(v)){
+      pendingCount++;
+    }else if(String(v??"").trim()!==""){
+      const amount=parseMoney(v);
+      received+=amount;
+      if(amount>0)paidCount++;
+    }
+  });
+
+  return {
+    received,
+    rent:received*.30,
+    balance:received*.70,
+    pendingCount,
+    paidCount
+  };
+}
+
+function setText(id,value){
+  document.getElementById(id).textContent=value;
+}
+
+function paymentCell(s,month){
+  const value=s.payments[month]??"";
+
+  if(editing){
+    return `<td class="money">
+      <input class="cell-input payment-input"
+        data-id="${s.id}"
+        data-month="${month}"
+        aria-label="Pagamento de ${safeText(s.name)}"
+        value="${safeText(value)}"
+        placeholder="Valor ou PENDENTE">
+    </td>`;
+  }
+
+  if(isPending(value)){
+    return `<td class="money-cell pending">PENDENTE</td>`;
+  }
+
+  if(String(value).trim()===""){
+    return `<td class="money-cell">—</td>`;
+  }
+
+  return `<td class="money-cell paid">${money(parseMoney(value))}</td>`;
+}
+
+function renderMainTable(){
+  let html="<thead><tr><th>Nº</th><th class='name'>NOME DO ALUNO</th>";
+
+  MONTHS.forEach(m=>html+=`<th>${m[2]}</th>`);
+
+  html+="<th class='row-actions'>EDITAR</th></tr></thead><tbody>";
+
+  students.forEach((s,i)=>{
+    html+=`<tr><td>${i+1}</td><td class="name">`;
+
+    html+=editing
+      ?`<input class="cell-input name-input name-input-field"
+          data-id="${s.id}" value="${safeText(s.name)}"
+          placeholder="Nome do aluno">`
+      :safeText(s.name||"—");
+
+    html+="</td>";
+
+    MONTHS.forEach(m=>html+=paymentCell(s,m[0]));
+
+    html+=`<td class="row-actions">${
+      editing
+        ?`<button class="btn small danger remove-student"
+            data-id="${s.id}">Remover</button>`
+        :"—"
+    }</td></tr>`;
+  });
+
+  html+="</tbody><tfoot>";
+
+  html+=`<tr><td colspan="2" style="text-align:left">TOTAL RECEBIDO</td>`;
+  MONTHS.forEach(m=>html+=`<td>${money(monthTotals(m[0]).received)}</td>`);
+  html+="<td></td></tr>";
+
+  html+=`<tr><td colspan="2" style="text-align:left">ALUGUEL (30%)</td>`;
+  MONTHS.forEach(m=>html+=`<td class="purple">${money(monthTotals(m[0]).rent)}</td>`);
+  html+="<td></td></tr>";
+
+  html+=`<tr><td colspan="2" style="text-align:left">SALDO RESTANTE (70%)</td>`;
+  MONTHS.forEach(m=>html+=`<td class="green">${money(monthTotals(m[0]).balance)}</td>`);
+  html+="<td></td></tr></tfoot>";
+
+  document.getElementById("mainTable").innerHTML=html;
+
+  document.getElementById("mainTableWrap")
+    .classList.toggle("editing",editing);
+
+  document.getElementById("studentCount").textContent=
+    students.filter(s=>s.name.trim()).length;
+
+  const t=monthTotals(selectedMonth);
+
+  setText("monthReceived",money(t.received));
+  setText("monthRent",money(t.rent));
+  setText("monthBalance",money(t.balance));
+}
+
+function renderSummary(){
+  let html="<thead><tr><th>MÊS</th><th>TOTAL RECEBIDO</th>"+
+    "<th>PENDÊNCIAS</th><th>ALUNOS COM PAGAMENTO</th>"+
+    "<th>ALUGUEL (30%)</th><th>SALDO RESTANTE (70%)</th></tr></thead><tbody>";
+
+  let total={
+    received:0,pendingCount:0,paidCount:0,rent:0,balance:0
+  };
+
+  MONTHS.forEach(m=>{
+    const t=monthTotals(m[0]);
+
+    total.received+=t.received;
+    total.pendingCount+=t.pendingCount;
+    total.paidCount+=t.paidCount;
+    total.rent+=t.rent;
+    total.balance+=t.balance;
+
+    html+=`<tr>
+      <td>${m[1]}</td>
+      <td>${money(t.received)}</td>
+      <td>${t.pendingCount}</td>
+      <td>${t.paidCount}</td>
+      <td class="purple">${money(t.rent)}</td>
+      <td class="green">${money(t.balance)}</td>
+    </tr>`;
+  });
+
+  html+=`</tbody><tfoot><tr>
+    <td>TOTAL DO PERÍODO</td>
+    <td>${money(total.received)}</td>
+    <td>${total.pendingCount}</td>
+    <td>${total.paidCount}</td>
+    <td>${money(total.rent)}</td>
+    <td>${money(total.balance)}</td>
+  </tr></tfoot>`;
+
+  document.getElementById("summaryTable").innerHTML=html;
+
+  setText("sumReceived",money(total.received));
+  setText("sumRent",money(total.rent));
+  setText("sumBalance",money(total.balance));
+  setText("sumPending",total.pendingCount);
+}
+
+function renderFinance(){
+  let html="<thead><tr><th>MÊS</th><th>TOTAL RECEBIDO</th>"+
+    "<th>ALUGUEL (30%)</th><th>SALDO RESTANTE (70%)</th>"+
+    "<th>PENDÊNCIAS</th><th>ALUNOS COM PAGAMENTO</th>"+
+    "<th>SALDO ACUMULADO</th></tr></thead><tbody>";
+
+  let acc=0,totalPending=0;
+
+  MONTHS.forEach(m=>{
+    const t=monthTotals(m[0]);
+
+    acc+=t.received;
+    totalPending+=t.pendingCount;
+
+    html+=`<tr>
+      <td>${m[1]}</td>
+      <td>${money(t.received)}</td>
+      <td class="purple">${money(t.rent)}</td>
+      <td class="green">${money(t.balance)}</td>
+      <td>${t.pendingCount}</td>
+      <td>${t.paidCount}</td>
+      <td>${money(acc)}</td>
+    </tr>`;
+  });
+
+  html+="</tbody>";
+
+  document.getElementById("financeTable").innerHTML=html;
+
+  const total=MONTHS.reduce(
+    (a,m)=>a+monthTotals(m[0]).received,0
+  );
+
+  setText("accReceived",money(total));
+  setText("accRent",money(total*.30));
+  setText("accBalance",money(total*.70));
+  setText("accPending",totalPending);
+}
+
+function renderAll(){
+  renderMainTable();
+  renderSummary();
+  renderFinance();
+}
+
+function setupMonthSelector(){
+  const select=document.getElementById("selectedMonth");
+
+  select.innerHTML=MONTHS.map(m=>
+    `<option value="${m[0]}">${m[1]}</option>`
+  ).join("");
+
+  select.value=selectedMonth;
+}
+
+/* Navegação dos menus */
+
+document.querySelectorAll(".tab").forEach(btn=>{
+  btn.addEventListener("click",()=>{
+    document.querySelectorAll(".tab")
+      .forEach(b=>b.classList.remove("active"));
+
+    document.querySelectorAll(".section")
+      .forEach(s=>s.classList.remove("active"));
+
+    btn.classList.add("active");
+    document.getElementById(btn.dataset.tab)
+      .classList.add("active");
+  });
+});
+
+/* Seleção do mês */
+
+document.getElementById("selectedMonth").addEventListener("change",e=>{
+  selectedMonth=e.target.value;
+  saveData();
+  renderAll();
+});
+
+/* Ativar e concluir edição */
+
+document.getElementById("editBtn").addEventListener("click",()=>{
+  editing=!editing;
+
+  document.getElementById("editBtn").textContent=
+    editing?"✓ CONCLUIR EDIÇÃO":"✎ EDITAR: DESATIVADO";
+
+  document.getElementById("editBtn")
+    .classList.toggle("primary",editing);
+
+  document.getElementById("addBtn")
+    .classList.toggle("hidden",!editing);
+
+  renderAll();
+});
+
+/* Adicionar aluno */
+
+document.getElementById("addBtn").addEventListener("click",()=>{
+  if(!editing){
+    alert("Clique em EDITAR antes de adicionar alunos.");
+    return;
+  }
+
+  students.push(blankStudent(""));
+  saveData();
+  renderAll();
+
+  const inputs=document.querySelectorAll(".name-input-field");
+  if(inputs.length)inputs[inputs.length-1].focus();
+});
+
+/* Salvar alterações de nomes e pagamentos */
+
+document.getElementById("mainTable").addEventListener("change",e=>{
+  const el=e.target;
+
+  if(el.classList.contains("payment-input")){
+    const s=students.find(x=>x.id===el.dataset.id);
+    if(!s)return;
+
+    const raw=el.value.trim();
+
+    if(raw && !isPending(raw) && !Number.isFinite(parseMoney(raw))){
+      alert("Digite um valor válido ou PENDENTE.");
+      renderAll();
+      return;
+    }
+
+    s.payments[el.dataset.month]=
+      isPending(raw)?"PENDENTE":raw;
+
+    saveData();
+    renderAll();
+  }
+
+  if(el.classList.contains("name-input-field")){
+    const s=students.find(x=>x.id===el.dataset.id);
+
+    if(s){
+      s.name=el.value.trim();
+      saveData();
+      renderAll();
+    }
+  }
+});
+
+document.getElementById("mainTable").addEventListener("keydown",e=>{
+  if(e.key==="Enter" &&
+    (e.target.classList.contains("payment-input")||
+     e.target.classList.contains("name-input-field"))){
+    e.preventDefault();
+    e.target.blur();
+  }
+});
+
+/* Remover aluno */
+
+document.getElementById("mainTable").addEventListener("click",e=>{
+  const btn=e.target.closest(".remove-student");
+  if(!btn)return;
+
+  const s=students.find(x=>x.id===btn.dataset.id);
+  if(!s)return;
+
+  if(confirm(`Remover ${s.name||"este aluno"} e seus pagamentos registrados?`)){
+    students=students.filter(x=>x.id!==s.id);
+    saveData();
+    renderAll();
+  }
+});
+
+/* Exportar controle para CSV */
+
+document.getElementById("exportBtn").addEventListener("click",()=>{
+  const rows=[["Nº","NOME DO ALUNO",...MONTHS.map(m=>m[2])]];
+
+  students.forEach((s,i)=>{
+    rows.push([i+1,s.name,...MONTHS.map(m=>s.payments[m[0]]??"")]);
+  });
+
+  rows.push([
+    "","TOTAL RECEBIDO",
+    ...MONTHS.map(m=>monthTotals(m[0]).received.toFixed(2).replace(".",","))
+  ]);
+
+  rows.push([
+    "","ALUGUEL (30%)",
+    ...MONTHS.map(m=>monthTotals(m[0]).rent.toFixed(2).replace(".",","))
+  ]);
+
+  rows.push([
+    "","SALDO RESTANTE (70%)",
+    ...MONTHS.map(m=>monthTotals(m[0]).balance.toFixed(2).replace(".",","))
+  ]);
+
+  const csv="\uFEFF"+rows.map(r=>
+    r.map(v=>`"${String(v??"").replace(/"/g,'""')}"`).join(";")
+  ).join("\r\n");
+
+  downloadBlob(
+    new Blob([csv],{type:"text/csv;charset=utf-8;"}),
+    "CBA_Funcional_FUT_Controle_Mensalidades.csv"
+  );
+});
+
+/* Criar cópia de segurança */
+
+document.getElementById("backupBtn").addEventListener("click",()=>{
+  const blob=new Blob([
+    JSON.stringify({students,selectedMonth},null,2)
+  ],{type:"application/json"});
+
+  downloadBlob(blob,"CBA_Funcional_FUT_Backup.json");
+});
+
+/* Restaurar cópia de segurança */
+
+document.getElementById("restoreBtn").addEventListener("click",()=>{
+  document.getElementById("restoreFile").click();
+});
+
+document.getElementById("restoreFile").addEventListener("change",async e=>{
+  const file=e.target.files[0];
+  if(!file)return;
+
+  try{
+    const data=JSON.parse(await file.text());
+
+    if(!Array.isArray(data.students)){
+      throw new Error("Formato inválido");
+    }
+
+    students=data.students.map(s=>({
+      id:s.id||makeId(),
+      name:String(s.name||""),
+      payments:Object.fromEntries(MONTHS.map(m=>[
+        m[0],s.payments?.[m[0]]??""
+      ]))
+    }));
+
+    if(MONTHS.some(m=>m[0]===data.selectedMonth)){
+      selectedMonth=data.selectedMonth;
+    }
+
+    setupMonthSelector();
+    document.getElementById("selectedMonth").value=selectedMonth;
+
+    saveData();
+    renderAll();
+
+    alert("Backup restaurado com sucesso.");
+  }catch(err){
+    alert("Não foi possível restaurar. Confira se o arquivo JSON é válido.");
+  }
+
+  e.target.value="";
+});
+
+function downloadBlob(blob,name){
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement("a");
+
+  a.href=url;
+  a.download=name;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+
+  setTimeout(()=>URL.revokeObjectURL(url),1000);
+}
+
+/* Inicialização do painel */
+
+loadData();
+setupMonthSelector();
+renderAll();
+
+</script>
+</body>
+</html>
